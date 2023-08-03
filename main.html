@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Handjet:wght@900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <script src="clicks.js"></script>
+    <script src="parallax.js"></script>
+    <div class="background">
+        <p id="clicks"> </p>
+        <div class="dark-theme">
+            <div class="container">
+                <div class="center">
+                    <pre id="latestTime">czas-zamknięcia</pre>
+                </div>
+                <div class="center-caption">
+                    <p id="event_caption">status</p>
+                </div>
+            </div>
+            <p id="smallText">Aplikacja nie uwzględnia w swoim harmonogramie niejawnych przejazdów jednostek towarowych PKP Cargo.</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadFile() {
+            fetch('czas.txt') // Change 'czas.txt' to the appropriate filename
+            .then(response => response.text())
+            .then(data => {
+                const fileContentElement = document.getElementById('latestTime');
+                fileContentElement.textContent = data;
+
+                // Get the current system time
+                const currentTime = new Date();
+                const currentHour = currentTime.getHours();
+                const currentMinute = currentTime.getMinutes();
+
+                // Extract the hour and minute from the loaded file
+                const [fileHour, fileMinute] = data.split(':').map(Number);
+
+                // Calculate the time difference in minutes
+                const timeDifference = (currentHour - fileHour) * 60 + (currentMinute - fileMinute);
+
+                // Apply CSS styles based on the time difference
+                const container = document.querySelector('.center');
+                const caption = document.getElementById('event_caption');
+                
+                if (timeDifference === -1) {
+                    container.style.borderColor = 'orange';
+                    container.style.backgroundColor = '#fbc216';
+                    caption.textContent = 'MOŻLIWIE ZAMKNIĘTE';
+                    caption.style.fontSize = '70px';
+                    caption.style.color = 'orange';
+                    caption.style.background = 'linear-gradient(to bottom, orange, rgba(255, 165, 0, 0.38))';
+                    caption.style.webkitBackgroundClip = 'text';
+                    caption.style.color = 'transparent';
+
+                } else if (timeDifference === 0) {
+                    container.style.borderColor = 'red';
+                    container.style.backgroundColor = '#fb3116  ';
+                    caption.textContent = 'ZAMKNIĘTE';
+                    caption.style.color = 'red';
+                    caption.style.background = 'linear-gradient(to bottom, red, rgba(255, 0, 0, 0.48))';
+                    caption.style.webkitBackgroundClip = 'text';
+                    caption.style.color = 'transparent';
+
+                } else {
+                    container.style.borderColor = 'lime';
+                    container.style.backgroundColor = '#009f3a';
+                    caption.textContent = 'OTWARTE';
+                    caption.style.color = 'lime';
+                    caption.style.background = 'linear-gradient(to bottom, lime, rgba(0, 255, 0, 0.28))';
+                    caption.style.webkitBackgroundClip = 'text';
+                    caption.style.color = 'transparent';
+
+                }
+            })
+            .catch(error => console.error('Błąd wczytywania pliku:', error));
+        }
+
+        // Call the loading function every second
+        setInterval(loadFile, 500); // Refresh every 1000 milliseconds (i.e., every second)
+    </script>
+</body>
+</html>
